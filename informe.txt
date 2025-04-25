@@ -1,0 +1,18 @@
+
+
+El objetivo era reconstruir una imagen que ha pasado por una serie de transformaciones. Estas transformaciones utilizando imágenes  como  I_M, P3, mascara M, y semilla M1 yM2 y una serie de operaciones: XOR y rotaciones de bits.
+Esquema de tareas realizadas
+Cargar dos imágenes: P3.bmp y I_M.bmp.
+Realizar XOR entre P3 e I_M → resultado: xor_inversa.bmp.
+Rotar a la izquierda 3 bits el resultado anterior → rotacion_inversa.bmp.
+Realizar XOR entre ese resultado y I_M → imagen_original.bmp.
+Cargar máscara (M.bmp) y semilla (M1.txt).
+Imprimir la semilla en consola en formato RGB.
+Verificar si la imagen reconstruida coincide con la imagen original, la máscara y la semilla.
+Problemas encontrados
+La semilla venía como archivo .txt, lo que exigió leerla como archivo binario en lugar de imagen.
+Las comparaciones fallaban si las imágenes no tenían el mismo tamaño o si el archivo M1.txt no coincidía en longitud con las imágenes.
+Fue necesario asegurarse de que los datos leídos estuvieran alineados en grupos de 3 (RGB) para que tuviera sentido visual.
+El primer paso fue comprender el problema y las operaciones requeridas, que incluían la manipulación de imágenes (carga, manipulación de píxeles y guardado) junto con el uso de una semilla y una máscara para realizar ciertas transformaciones.
+Las transformaciones básicas que fueron necesarias en el proyecto fueron el XOR y la rotación de bits:
+XOR: Se implementó una función que realiza la operación bit a bit entre dos valores
