@@ -43,7 +43,6 @@ bool saveImage(const unsigned char* data, int width, int height, const QString& 
 
     return img.save(filename);
 }
-
 // Cargar semilla desde archivo txt
 unsigned char* loadSeed(const QString& filename, int& size) {
     ifstream file(filename.toStdString(), ios::binary);
@@ -57,34 +56,13 @@ unsigned char* loadSeed(const QString& filename, int& size) {
     file.read(reinterpret_cast<char*>(seed), size);
     return seed;
 }
-// Cargar semilla desde archivo txt
-unsigned char* loadSeed(const QString& filename, int& size2) {
-    ifstream file(filename.toStdString(), ios::binary);
-    if (!file) return nullptr;
-
-    file.seekg(0, ios::end);
-    size = file.tellg();
-    file.seekg(0, ios::beg);
-
-    unsigned char* seed = new unsigned char[size2];
-    file.read(reinterpret_cast<char*>(seed), size2);
-    return seed;
-}
 
 // Imprimir semilla en RGB
 void printSeed(const unsigned char* seed, int size) {
-    cout << "\nContenido de la semilla (M1.txt):\n";
+    cout << "\nContenido de la semilla:\n";
     for (int i = 0; i + 2 < size; i += 3)
         cout << (int)seed[i] << " " << (int)seed[i + 1] << " " << (int)seed[i + 2] << endl;
 }
-
-// Imprimir semilla en RGB
-void printSeed(const unsigned char* seed, int size2) {
-    cout << "\nContenido de la semilla (M2.txt):\n";
-    for (int i = 0; i + 2 < size; i += 3)
-        cout << (int)seed[i] << " " << (int)seed[i + 1] << " " << (int)seed[i + 2] << endl;
-}
-
 
 // Comparar dos arrays
 bool compareArrays(const unsigned char* a, const unsigned char* b, int size) {
@@ -156,7 +134,7 @@ int main() {
 
     // Comparar imagen original con M1.txt (rotación a la izquierda)
     cout << "Comparando imagen original con M1.txt (rotación a la izquierda): ";
-    if (semillaSize == dataSize && compareArrays(paso2, semilla, dataSize)) {
+    if (semillaSize == dataSize && compareArrays(paso1, semilla1, dataSize)) {
         cout << "se parece\n";
     } else {
         cout << "no se parece\n";
@@ -164,7 +142,7 @@ int main() {
 
     // Comparar imagen original con M2.txt (primer XOR)
     cout << "Comparando imagen original con M2.txt (primer XOR): ";
-    if (semillaSize2 == dataSize && compareArrays(paso1, semilla1, dataSize)) {
+    if (semillaSize2 ==  dataSize && compareArrays(paso2, semilla, dataSize)) {
         cout << "se parece\n";
     } else {
         cout << "no se parece\n";
