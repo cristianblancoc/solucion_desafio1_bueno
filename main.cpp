@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// ================== Cargar imagen BMP ==================
+// Cargar imagen BMP
 unsigned char* loadImage(const QString& filename, int& width, int& height, int& dataSize) {
     QImage img(filename);
 
@@ -30,7 +30,7 @@ unsigned char* loadImage(const QString& filename, int& width, int& height, int& 
     return data;
 }
 
-// ================== Guardar imagen BMP ==================
+//  Guardar imagen BMP
 bool saveImage(const unsigned char* data, int width, int height, const QString& filename) {
     QImage img(width, height, QImage::Format_RGB888);
     int index = 0;
@@ -44,7 +44,7 @@ bool saveImage(const unsigned char* data, int width, int height, const QString& 
     return img.save(filename);
 }
 
-// ================== Cargar semilla desde archivo txt ==================
+// Cargar semilla desde archivo txt
 unsigned char* loadSeed(const QString& filename, int& size) {
     ifstream file(filename.toStdString(), ios::binary);
     if (!file) return nullptr;
@@ -57,32 +57,53 @@ unsigned char* loadSeed(const QString& filename, int& size) {
     file.read(reinterpret_cast<char*>(seed), size);
     return seed;
 }
+// Cargar semilla desde archivo txt
+unsigned char* loadSeed(const QString& filename, int& size2) {
+    ifstream file(filename.toStdString(), ios::binary);
+    if (!file) return nullptr;
 
-// ================== Imprimir semilla en RGB ==================
+    file.seekg(0, ios::end);
+    size = file.tellg();
+    file.seekg(0, ios::beg);
+
+    unsigned char* seed = new unsigned char[size2];
+    file.read(reinterpret_cast<char*>(seed), size2);
+    return seed;
+}
+
+// Imprimir semilla en RGB
 void printSeed(const unsigned char* seed, int size) {
     cout << "\nContenido de la semilla (M1.txt):\n";
     for (int i = 0; i + 2 < size; i += 3)
         cout << (int)seed[i] << " " << (int)seed[i + 1] << " " << (int)seed[i + 2] << endl;
 }
 
-// ================== Comparar dos arrays ==================
+// Imprimir semilla en RGB
+void printSeed(const unsigned char* seed, int size2) {
+    cout << "\nContenido de la semilla (M2.txt):\n";
+    for (int i = 0; i + 2 < size; i += 3)
+        cout << (int)seed[i] << " " << (int)seed[i + 1] << " " << (int)seed[i + 2] << endl;
+}
+
+
+// Comparar dos arrays
 bool compareArrays(const unsigned char* a, const unsigned char* b, int size) {
     for (int i = 0; i < size; ++i)
         if (a[i] != b[i]) return false;
     return true;
 }
 
-// ================== XOR ==================
+//  XOR
 unsigned char xorByte(unsigned char a, unsigned char b) {
     return a ^ b;
 }
 
-// ================== Rotar bits a la izquierda ==================
+//  Rotar bitsa la izquierda
 unsigned char rotateLeft(unsigned char val, int bits) {
     return (val << bits) | (val >> (8 - bits));
 }
 
-// ================== MAIN ==================
+
 int main() {
     int width = 0, height = 0, dataSize = 0;
 
@@ -95,47 +116,58 @@ int main() {
         return -1;
     }
 
-    // ===== Paso 1: XOR inversa =====
+    //  Paso 1: XOR inversa
     unsigned char* paso1 = new unsigned char[dataSize];
     for (int i = 0; i < dataSize; ++i)
         paso1[i] = xorByte(P3[i], IM[i]);
     saveImage(paso1, width, height, "xor_inversa.bmp");
 
-    // ===== Paso 2: Rotación a la izquierda (3 bits) =====
+    // Paso 2: Rotación a la izquierda (3 bits)
     unsigned char* paso2 = new unsigned char[dataSize];
     for (int i = 0; i < dataSize; ++i)
         paso2[i] = rotateLeft(paso1[i], 3);
     saveImage(paso2, width, height, "rotacion_inversa.bmp");
 
-    // ===== Paso 3: XOR final con I_M =====
+    //  Paso 3: XOR final con I_M
     unsigned char* imagenFinal = new unsigned char[dataSize];
     for (int i = 0; i < dataSize; ++i)
         imagenFinal[i] = xorByte(paso2[i], IM[i]);
     saveImage(imagenFinal, width, height, "imagen_original.bmp");
 
-    // ===== Cargar máscara (M.bmp) y semilla (M1.txt) =====
+    //  Cargar máscara (M.bmp) y semilla (M1.txt)
     int dummySize = 0;
     unsigned char* mascara = loadImage("M.bmp", width, height, dummySize);
     int semillaSize = 0;
     unsigned char* semilla = loadSeed("M1.txt", semillaSize);
+    int semillaSize2 = 0;
+    unsigned char* semilla1 = loadSeed("M2.txt", semillaSize2);
 
     // Mostrar semilla
     printSeed(semilla, semillaSize);
+    printSeed(semilla1, semillaSize2);
 
-    // Comparar con máscara
-    cout << "\nComparando imagen original con imagen 1 (M.bmp): ";
+    // Comparar imagen con máscara (M.bmp)
+    cout << "\nComparando imagen con M: ";
     if (compareArrays(imagenFinal, mascara, dataSize)) {
-        cout << "Se parecen\n";
+        cout << "se parecen\n";
     } else {
-        cout << "No se parecen\n";
+        cout << "no se parecen\n";
     }
 
-    // Comparar con semilla
-    cout << "Comparando imagen original con imagen 2 (M1.txt): ";
-    if (semillaSize == dataSize && compareArrays(imagenFinal, semilla, dataSize)) {
-        cout << "Se parecen\n";
+    // Comparar imagen original con M1.txt (rotación a la izquierda)
+    cout << "Comparando imagen original con M1.txt (rotación a la izquierda): ";
+    if (semillaSize == dataSize && compareArrays(paso2, semilla, dataSize)) {
+        cout << "se parece\n";
     } else {
-        cout << "No se parecen\n";
+        cout << "no se parece\n";
+    }
+
+    // Comparar imagen original con M2.txt (primer XOR)
+    cout << "Comparando imagen original con M2.txt (primer XOR): ";
+    if (semillaSize2 == dataSize && compareArrays(paso1, semilla1, dataSize)) {
+        cout << "se parece\n";
+    } else {
+        cout << "no se parece\n";
     }
 
     // Liberar memoria
@@ -146,6 +178,7 @@ int main() {
     delete[] imagenFinal;
     delete[] mascara;
     delete[] semilla;
+    delete[] semilla1;
 
     return 0;
 }
